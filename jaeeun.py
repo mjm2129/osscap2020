@@ -148,10 +148,10 @@ def check_cards():
 
 def update_label_remaining():
     global p1,p2,p3,p4,present_total_card,present_sum
-    print("p1:",len(p1.hand_cards))
-    print("p2:",len(p2.hand_cards))
-    print("p3:",len(p3.hand_cards))
-    print("p4:",len(p4.hand_cards))
+    # print("p1:",len(p1.hand_cards))
+    # print("p2:",len(p2.hand_cards))
+    # print("p3:",len(p3.hand_cards))
+    # print("p4:",len(p4.hand_cards))
     # print(len(present_total_card))
     # print("[R G B Y]")
     # print(present_sum)
@@ -277,11 +277,9 @@ def main():
     initCard()
     initPlayer()
     os.system('clear' if os.name == 'posix' else 'clear')
-
+    oScreen = copy.deepcopy(iScreen)
+    win.fill('@', fgcolor='black', bgcolor='black')
     while True:
-        oScreen = copy.deepcopy(iScreen)
-        win.fill('@', fgcolor='black', bgcolor='black')
-
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                     pygame.quit()
@@ -290,15 +288,18 @@ def main():
         if len(p1.hand_cards) == 0:  
             lose()                  
         else:
-            present_sum = np.asarray([0,0,0,0])
+            if card1 is not None:
+                present_surface_card[0] = []
+                present_sum[card1.color-1] = present_sum[card1.color-1] - card1.count
+            # present_sum = np.asarray([0,0,0,0])
             card1 = p1.hand_cards.pop()
             present_surface_card[0] = [card1]
             present_total_card = present_total_card+[card1]
             present_sum[card1.color-1] = present_sum[card1.color-1] + card1.count
-            # print("[R G B Y]")
-            # print(present_sum)
-
-                # print("card1's count",card1.count)
+            print("[R G B Y]")
+            print(present_sum)
+            # print("card1's count",card1.count)
+            
             for i in range(8):
                     for j in range(16):
                         oScreen[i][j]=card1.coord[i][j]
@@ -311,15 +312,15 @@ def main():
         if len(p2.hand_cards) == 0: 
             lose()                  
         else:
-            # if card2 is not None:
-            #     present_surface_card[0] = []
-            #     present_sum[card2.color-1] = present_sum[card2.color-1] - card2.count
+            if card2 is not None:
+                present_surface_card[1] = []
+                present_sum[card2.color-1] = present_sum[card2.color-1] - card2.count
             card2 = p2.hand_cards.pop()
-            present_surface_card[0] = [card2]
+            present_surface_card[1] = [card2]
             present_total_card = present_total_card+[card2]
             present_sum[card2.color-1] = present_sum[card2.color-1] + card2.count
-            # print("[R G B Y]")
-            # print(present_sum)
+            print("[R G B Y]")
+            print(present_sum)
                 # print("card2's count",card2.count)
             for i in range(8):
                     for j in range(16):
@@ -334,15 +335,16 @@ def main():
         if len(p3.hand_cards) == 0:  
             lose()                  
         else:
-            # if card3 is not None:
-            #     present_surface_card[0] = []
-            #     present_sum[card3.color-1] = present_sum[card3.color-1] - card3.count
+            if card3 is not None:
+                present_surface_card[0] = []
+                present_sum[card3.color-1] = present_sum[card3.color-1] - card3.count
             card3 = p3.hand_cards.pop()
-            present_surface_card[0] = [card3]
+            present_surface_card[2] = [card3]
             present_total_card = present_total_card+[card3]
             present_sum[card3.color-1] = present_sum[card3.color-1] + card3.count
-            # print("[R G B Y]")
-            # print(present_sum)
+            print("[R G B Y]")
+            print(present_sum)
+            
             for i in range(8):
                     for j in range(16):
                         oScreen[i+8][j]=card3.coord[i][j]
@@ -356,15 +358,15 @@ def main():
         if len(p4.hand_cards) == 0:   
             lose()                  
         else:
-            # if card4 is not None:
-            #     present_surface_card[0] = []
-            #     present_sum[card4.color-1] = present_sum[card4.color-1] - card4.count
+            if card4 is not None:
+                present_surface_card[0] = []
+                present_sum[card4.color-1] = present_sum[card4.color-1] - card4.count
             card4 = p4.hand_cards.pop()
-            present_surface_card[0] = [card4]
+            present_surface_card[3] = [card4]
             present_total_card = present_total_card+[card4]
             present_sum[card4.color-1] = present_sum[card4.color-1] + card4.count
-            # print("[R G B Y]")
-            # print(present_sum)
+            print("[R G B Y]")
+            print(present_sum)
             for i in range(8):
                     for j in range(16):
                         oScreen[i+8][j+16]=card4.coord[i][j]
@@ -374,7 +376,7 @@ def main():
         update_label_remaining()
         # time.sleep(2)
         keyboard()
-        os.system('clear' if os.name =='posix' else 'clear')
+        # os.system('clear' if os.name =='posix' else 'clear')
 
 if __name__ == '__main__':
     main()
