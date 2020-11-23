@@ -147,12 +147,14 @@ def check_cards():
 
 
 def update_label_remaining():
-    global p1,p2,p3,p4,present_total_card
+    global p1,p2,p3,p4,present_total_card,present_sum
     print("p1:",len(p1.hand_cards))
     print("p2:",len(p2.hand_cards))
     print("p3:",len(p3.hand_cards))
     print("p4:",len(p4.hand_cards))
     # print(len(present_total_card))
+    # print("[R G B Y]")
+    # print(present_sum)
 
 def lose():
     global p1,p2,p3,p4
@@ -178,15 +180,95 @@ def pygcurseMatrix(screen):
     for i in range(16):
         for j in range(32):
             if screen[i][j] == 1:
-                win.putchar('@', j, i, 'blue')
+                win.putchar('@', j, i, 'red')
             elif screen[i][j] == 2:
                 win.putchar('@', j, i, 'green')
             elif screen[i][j] == 3:
-                win.putchar('@', j, i, 'yellow')
+                win.putchar('@', j, i, 'blue')
             elif screen[i][j] == 4:
-                win.putchar('@', j, i, 'red')    
+                win.putchar('@', j, i, 'yellow')    
             #default color = 'white', 'yellow' ,'fuchsia' ,'red', 'silver', 'gray', 'olive', 'purple', 'maroon', 'aqua', 'lime', 'teal', 'green', 'blue', 'navy', 'black'
     win.update()
+
+def keyboard():
+    global card1, card2, card3, card4
+    global present_surface_card, present_sum, present_total_card
+    global TAKE, RING
+
+    event = input()
+    if event == '1':
+        if (TAKE == 1 and RING == 0):
+            p1.hand_cards = present_total_card + p1.hand_cards
+            present_total_card = []
+            present_surface_card = [[], [], [], []]
+            present_sum = np.asarray([0, 0, 0, 0])
+            card1, card2, card3, card4, RING, TAKE = None, None, None, None, 0, 0
+            # clean_cards()
+        elif TAKE == 0:
+            if len(p1.hand_cards) > 3:
+                p2.hand_cards.insert(0, p1.hand_cards.pop())
+                p3.hand_cards.insert(0, p1.hand_cards.pop())
+                p4.hand_cards.insert(0, p1.hand_cards.pop())
+            else:
+                p1.hand_cards = []
+                lose()
+        check_cards()
+        update_label_remaining()
+    elif event == '2':
+        if (TAKE == 1 and RING == 0):
+            p2.hand_cards = present_total_card + p2.hand_cards
+            present_total_card = []
+            present_surface_card = [[], [], [], []]
+            present_sum = np.asarray([0, 0, 0, 0])
+            card1, card2, card3, card4, RING, TAKE = None, None, None, None, 0, 0
+            # clean_cards()
+        elif TAKE == 0:
+            if len(p2.hand_cards) > 3:
+                p1.hand_cards.insert(0, p2.hand_cards.pop())
+                p3.hand_cards.insert(0, p2.hand_cards.pop())
+                p4.hand_cards.insert(0, p2.hand_cards.pop())
+            else:
+                p2.hand_cards = []
+                lose()
+        check_cards()
+        update_label_remaining()
+    elif event == '3':
+        if (TAKE == 1 and RING == 0):
+            p3.hand_cards = present_total_card + p3.hand_cards
+            present_total_card = []
+            present_surface_card = [[], [], [], []]
+            present_sum = np.asarray([0, 0, 0, 0])
+            card1, card2, card3, card4, RING, TAKE = None, None, None, None, 0, 0
+            # clean_cards()
+        elif TAKE == 0:
+            if len(p3.hand_cards) > 3:
+                p1.hand_cards.insert(0, p3.hand_cards.pop())
+                p2.hand_cards.insert(0, p3.hand_cards.pop())
+                p4.hand_cards.insert(0, p3.hand_cards.pop())
+            else:
+                p3.hand_cards = []
+                lose()
+        check_cards()
+        update_label_remaining()
+    elif event == '4':
+        if (TAKE == 1 and RING == 0):
+            p4.hand_cards = present_total_card + p4.hand_cards
+            present_total_card = []
+            present_surface_card = [[], [], [], []]
+            present_sum = np.asarray([0, 0, 0, 0])
+            card1, card2, card3, card4, RING, TAKE = None, None, None, None, 0, 0
+            # clean_cards()
+        elif TAKE == 0:
+            if len(p4.hand_cards) > 3:
+                p1.hand_cards.insert(0, p4.hand_cards.pop())
+                p2.hand_cards.insert(0, p4.hand_cards.pop())
+                p3.hand_cards.insert(0, p4.hand_cards.pop())
+            else:
+                p4.hand_cards = []
+                lose()
+        check_cards()
+        update_label_remaining()
+    
 
 def main():
     global card1, card2, card3, card4
@@ -208,88 +290,90 @@ def main():
         if len(p1.hand_cards) == 0:  
             lose()                  
         else:
-            if card1 is not None:
-                present_surface_card[0] = []
-                for i in range(4):
-                    present_sum[i] = present_sum[i] - card1.count
-        card1 = p1.hand_cards.pop()
-        present_surface_card[0] = [card1]
-        present_total_card = present_total_card+[card1]
-        for i in range(4):
-            present_sum[i] = present_sum[i] + card1.count
-            # print("card1's count",card1.count)
-        for i in range(8):
-                for j in range(16):
-                    oScreen[i][j]=card1.coord[i][j]
-        pygcurseMatrix(oScreen)
+            present_sum = np.asarray([0,0,0,0])
+            card1 = p1.hand_cards.pop()
+            present_surface_card[0] = [card1]
+            present_total_card = present_total_card+[card1]
+            present_sum[card1.color-1] = present_sum[card1.color-1] + card1.count
+            # print("[R G B Y]")
+            # print(present_sum)
+
+                # print("card1's count",card1.count)
+            for i in range(8):
+                    for j in range(16):
+                        oScreen[i][j]=card1.coord[i][j]
+            pygcurseMatrix(oScreen)
         check_cards()
         update_label_remaining()
-        time.sleep(0.1) # 입력 받기
+        # time.sleep(2) # 입력 받기
+        keyboard()
         #Player2###################################################################
         if len(p2.hand_cards) == 0: 
             lose()                  
         else:
-            if card2 is not None:
-                present_surface_card[0] = []
-                for i in range(4):
-                    present_sum[i] = present_sum[i] - card2.count
-        card2 = p2.hand_cards.pop()
-        present_surface_card[0] = [card2]
-        present_total_card = present_total_card+[card2]
-        for i in range(4):
-            present_sum[i] = present_sum[i] + card2.count
-            # print("card2's count",card2.count)
-        for i in range(8):
-                for j in range(16):
-                    oScreen[i][j+16]=card2.coord[i][j]
-        # consoleMatrix(oScreen)
-        pygcurseMatrix(oScreen)
+            # if card2 is not None:
+            #     present_surface_card[0] = []
+            #     present_sum[card2.color-1] = present_sum[card2.color-1] - card2.count
+            card2 = p2.hand_cards.pop()
+            present_surface_card[0] = [card2]
+            present_total_card = present_total_card+[card2]
+            present_sum[card2.color-1] = present_sum[card2.color-1] + card2.count
+            # print("[R G B Y]")
+            # print(present_sum)
+                # print("card2's count",card2.count)
+            for i in range(8):
+                    for j in range(16):
+                        oScreen[i][j+16]=card2.coord[i][j]
+            # consoleMatrix(oScreen)
+            pygcurseMatrix(oScreen)
         check_cards()
         update_label_remaining()
-        time.sleep(0.1)
+        # time.sleep(2)
+        keyboard()
         #Player3###################################################################
         if len(p3.hand_cards) == 0:  
             lose()                  
         else:
-            if card3 is not None:
-                present_surface_card[0] = []
-                for i in range(4):
-                    present_sum[i] = present_sum[i] - card3.count
-        card3 = p3.hand_cards.pop()
-        present_surface_card[0] = [card3]
-        present_total_card = present_total_card+[card3]
-        for i in range(4):
-            present_sum[i] = present_sum[i] + card3.count
-        for i in range(8):
-                for j in range(16):
-                    oScreen[i+8][j]=card3.coord[i][j]
-        # consoleMatrix(oScreen)
-        pygcurseMatrix(oScreen)
+            # if card3 is not None:
+            #     present_surface_card[0] = []
+            #     present_sum[card3.color-1] = present_sum[card3.color-1] - card3.count
+            card3 = p3.hand_cards.pop()
+            present_surface_card[0] = [card3]
+            present_total_card = present_total_card+[card3]
+            present_sum[card3.color-1] = present_sum[card3.color-1] + card3.count
+            # print("[R G B Y]")
+            # print(present_sum)
+            for i in range(8):
+                    for j in range(16):
+                        oScreen[i+8][j]=card3.coord[i][j]
+            # consoleMatrix(oScreen)
+            pygcurseMatrix(oScreen)
         check_cards()
         update_label_remaining()
-        time.sleep(0.1)
+        # time.sleep(2)
+        keyboard()
         #Player4###################################################################
         if len(p4.hand_cards) == 0:   
             lose()                  
         else:
-            if card4 is not None:
-                present_surface_card[0] = []
-                for i in range(4):
-                    present_sum[i] = present_sum[i] - card4.count
-        card4 = p4.hand_cards.pop()
-        present_surface_card[0] = [card4]
-        present_total_card = present_total_card+[card4]
-        for i in range(4):
-            present_sum[i] = present_sum[i] + card4.count
-        for i in range(8):
-                for j in range(16):
-                    oScreen[i+8][j+16]=card4.coord[i][j]
-        # consoleMatrix(oScreen)
-        pygcurseMatrix(oScreen)
+            # if card4 is not None:
+            #     present_surface_card[0] = []
+            #     present_sum[card4.color-1] = present_sum[card4.color-1] - card4.count
+            card4 = p4.hand_cards.pop()
+            present_surface_card[0] = [card4]
+            present_total_card = present_total_card+[card4]
+            present_sum[card4.color-1] = present_sum[card4.color-1] + card4.count
+            # print("[R G B Y]")
+            # print(present_sum)
+            for i in range(8):
+                    for j in range(16):
+                        oScreen[i+8][j+16]=card4.coord[i][j]
+            # consoleMatrix(oScreen)
+            pygcurseMatrix(oScreen)
         check_cards()
         update_label_remaining()
-        time.sleep(0.1)
-
+        # time.sleep(2)
+        keyboard()
         os.system('clear' if os.name =='posix' else 'clear')
 
 if __name__ == '__main__':
