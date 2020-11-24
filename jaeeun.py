@@ -1,17 +1,17 @@
-#import LED_display as LED
+import LED_display as LED
 import threading
 import time
 import numpy as np
 import random
-import pygame, pygcurse
-from pygame.locals import *
+#import pygame, pygcurse
+#from pygame.locals import *
 import copy
 import os
 import sys
 
 iScreen = [[0 for x in range(32)] for x in range(16)]
 
-win = pygcurse.PygcurseWindow(32,16, fullscreen=False)
+#win = pygcurse.PygcurseWindow(32,16, fullscreen=False)
 
 class Card:
     coord = None
@@ -106,6 +106,12 @@ p1 = []
 p2 = []
 p3 = []
 p4 = []
+
+def LED_init():
+    thread=threading.Thread(target=LED.main, args=())
+    thread.setDaemon(True)
+    thread.start()
+    return
 
 def initCard():
     global total_card
@@ -274,16 +280,17 @@ def main():
     global card1, card2, card3, card4
     global present_surface_card, present_sum, present_total_card
     global TAKE
+    LED_init()
     initCard()
     initPlayer()
-    os.system('clear' if os.name == 'posix' else 'clear')
-    oScreen = copy.deepcopy(iScreen)
-    win.fill('@', fgcolor='black', bgcolor='black')
+    #os.system('clear' if os.name == 'posix' else 'clear')
+    #oScreen = copy.deepcopy(iScreen)
+    #win.fill('@', fgcolor='black', bgcolor='black')
     while True:
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                    pygame.quit()
-                    sys.exit()
+    #    for event in pygame.event.get():
+    #        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+    #                pygame.quit()
+    #                sys.exit()
         #Player1###################################################################
         if len(p1.hand_cards) == 0:  
             lose()                  
@@ -296,14 +303,14 @@ def main():
             present_surface_card[0] = [card1]
             present_total_card = present_total_card+[card1]
             present_sum[card1.color-1] = present_sum[card1.color-1] + card1.count
-            print("[R G B Y]")
+            print("[R G Y B]")
             print(present_sum)
             # print("card1's count",card1.count)
             
             for i in range(8):
                     for j in range(16):
-                        oScreen[i][j]=card1.coord[i][j]
-            pygcurseMatrix(oScreen)
+                        LED.screen[i][j]=card1.coord[i][j]
+            #pygcurseMatrix(oScreen)
         check_cards()
         update_label_remaining()
         # time.sleep(2) # 입력 받기
@@ -319,14 +326,14 @@ def main():
             present_surface_card[1] = [card2]
             present_total_card = present_total_card+[card2]
             present_sum[card2.color-1] = present_sum[card2.color-1] + card2.count
-            print("[R G B Y]")
+            print("[R G Y B]")
             print(present_sum)
                 # print("card2's count",card2.count)
             for i in range(8):
                     for j in range(16):
-                        oScreen[i][j+16]=card2.coord[i][j]
+                        LED.screen[i][j+16]=card2.coord[i][j]
             # consoleMatrix(oScreen)
-            pygcurseMatrix(oScreen)
+            #pygcurseMatrix(oScreen)
         check_cards()
         update_label_remaining()
         # time.sleep(2)
@@ -342,14 +349,14 @@ def main():
             present_surface_card[2] = [card3]
             present_total_card = present_total_card+[card3]
             present_sum[card3.color-1] = present_sum[card3.color-1] + card3.count
-            print("[R G B Y]")
+            print("[R G Y B]")
             print(present_sum)
             
             for i in range(8):
                     for j in range(16):
-                        oScreen[i+8][j]=card3.coord[i][j]
+                        LED.screen[i+8][j]=card3.coord[i][j]
             # consoleMatrix(oScreen)
-            pygcurseMatrix(oScreen)
+#            pygcurseMatrix(oScreen)
         check_cards()
         update_label_remaining()
         # time.sleep(2)
@@ -365,13 +372,13 @@ def main():
             present_surface_card[3] = [card4]
             present_total_card = present_total_card+[card4]
             present_sum[card4.color-1] = present_sum[card4.color-1] + card4.count
-            print("[R G B Y]")
+            print("[R G Y B]")
             print(present_sum)
             for i in range(8):
                     for j in range(16):
-                        oScreen[i+8][j+16]=card4.coord[i][j]
+                        LED.screen[i+8][j+16]=card4.coord[i][j]
             # consoleMatrix(oScreen)
-            pygcurseMatrix(oScreen)
+            #pygcurseMatrix(oScreen)
         check_cards()
         update_label_remaining()
         # time.sleep(2)
