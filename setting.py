@@ -441,14 +441,14 @@ def main():
     who = 0                             # who: 누구차례인지 나타내는 변수, player_list의 index를 나타냄, 처음엔 index 0부터 시작
     while True: # 게임 while문
         if(len(player_list) == 1) break # 게임 종료 조건: 플레이어가 한명 남을 경우 
-        i = who 
+        if(who != -1): i = who 
         player_list[i].output() 
         check_cards()                   # 5개짜리 있다면, TAKE =1 갱신
         # if(특정키 입력):
         #     update_label_remaining()  # 특정키 입력시 남은 카드 수 LED 출력 
         who = keyboard_input()          # 종친 플레이어의 index 반환
         if(who == -1):                  # 아무도 종을 안친 경우
-            i = (i+1)/len(player_list)  # 다음 사람~
+            i = (i+1)%len(player_list)  # 다음 사람~
             if(i>len(player_list)):     # 플레이어 한명이 게임에서 진경우 player_list의 길이가 작아짐 그 경우 고려함
                 i = i-1
         else:
