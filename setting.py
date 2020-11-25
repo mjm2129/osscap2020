@@ -186,33 +186,40 @@ def check_cards():
     # print(present_sum,present_surface_card,RING,TAKE)
 
 
-def update_label_remaining():
+def update_label_remaining(): # LED 출력으로 바뀌어야 함
     global p1,p2,p3,p4,present_total_card,present_sum
     print("p1:",len(p1.hand_cards))
     print("p2:",len(p2.hand_cards))
     print("p3:",len(p3.hand_cards))
     print("p4:",len(p4.hand_cards))
-    # print(len(present_total_card))
-    # print("[R G B Y]")
-    # print(present_sum)
 
 def lose():
     global p1,p2,p3,p4, player_list
+
     if len(p1.hand_cards) == 0:
         print("p1 lose")
-        player_list.remove(p1)
+        player_list.remove(p1)  
+        for i in range(8):
+            for j in range(16):
+                LED.screen[i][j] = 0 
     if len(p2.hand_cards) == 0:
         print("p2 lose")
         player_list.remove(p2)
+        for i in range(8):
+            for j in range(16):
+                LED.screen[i][j+16] = 0 
     if len(p3.hand_cards) == 0:
         print("p3 lose")
         player_list.remove(p3)
+        for i in range(8):
+            for j in range(16):
+                LED.screen[i+8][j] = 0 
     if len(p4.hand_cards) == 0:
         print("p4 lose")
         player_list.remove(p4)
-    if len(p1.hand_cards)== 56 or len(p2.hand_cards)== 56 or len(p3.hand_cards)== 56 or len(p4.hand_cards)== 56:
-        print("all player lose")
-        sys.exit() 
+        for i in range(8):
+            for j in range(16):
+                LED.screen[i+8][j+16] = 0 
     
 
 def consoleMatrix(screen):
@@ -236,7 +243,7 @@ def pygcurseMatrix(screen):
 
 def keyboard_input():
     global card1, card2, card3, card4
-    global present_surface_card, present_sum, present_total_card
+    global present_surface_card, present_sum, present_total_card, player_list
     global TAKE, RING
 
     event = input()
@@ -272,6 +279,7 @@ def keyboard_input():
                 LED.screen[i][j]=card1.coord[i][j]'''
         check_cards()
         update_label_remaining()
+        who = player_list.index(p1)
     elif event == '2':
         if (TAKE == 1 and RING == 0):
             p2.hand_cards = present_total_card + p2.hand_cards
@@ -303,6 +311,7 @@ def keyboard_input():
                 LED.screen[i][j+16]=card2.coord[i][j]'''
         check_cards()
         update_label_remaining()
+        who = player_list.index(p2)
     elif event == '3':
         if (TAKE == 1 and RING == 0):
             p3.hand_cards = present_total_card + p3.hand_cards
@@ -333,6 +342,7 @@ def keyboard_input():
                 LED.screen[i+8][j]=card3.coord[i][j]'''
         check_cards()
         update_label_remaining()
+        who = player_list.index(p3)
     elif event == '4':
         if (TAKE == 1 and RING == 0):
             p4.hand_cards = present_total_card + p4.hand_cards
@@ -363,6 +373,9 @@ def keyboard_input():
                 LED.screen[i+8][j+16]=card4.coord[i][j]'''
         check_cards()
         update_label_remaining()
+        wwho = player_list.index(p4)
+    else who = -1
+    return who
     
 p1_ready=0
 p2_ready=0
@@ -377,15 +390,6 @@ def main():
     LED_init()
     initCard()
     initPlayer()
-    #os.system('clear' if os.name == 'posix' else 'clear')
-    #oScreen = copy.deepcopy(iScreen)
-    #win.fill('@', fgcolor='black', bgcolor='black')
-
-    #    for event in pygame.event.get():
-    #        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-    #                pygame.quit()
-    #                sys.exit()
-        #Player1###################################################################
 
     global a
     global p1_ready
@@ -394,6 +398,7 @@ def main():
     global p4_ready
     global b
 
+    ####################################### START READY ##############################################
     while True:
         if keyboard.is_pressed('s'):
             print("ready_room")
@@ -401,7 +406,6 @@ def main():
             break
             
     while b!=0:
-        
         if keyboard.is_pressed('1'):
             p1_ready+=1
             for i in range(4):
@@ -431,39 +435,24 @@ def main():
             time.sleep(3)
             a=1
             break
-
-    LED.screen = [[0 for x in range(32)] for x in range(16)]
-    while a!=0:
-        for a in player_list:
-            a.output()
-            check_cards()
-            update_label_remaining()
-            keyboard_input()
-
-'''     p1.output()
-        check_cards()
-        update_label_remaining()
-        # time.sleep(2) # 입력 받기
-        keyboard_input()
-        #Player2###################################################################
-        p2.output()
-        check_cards()
-        update_label_remaining()
-        # time.sleep(2)
-        keyboard_input()
-        #Player3###################################################################
-        p3.output()
-        check_cards()
-        update_label_remaining()
-        # time.sleep(2)
-        keyboard_input()
-        #Player4###################################################################
-        p4.output()
-        check_cards()
-        update_label_remaining()
-        # time.sleep(2)
-        keyboard_input()
-        # os.system('clear' if os.name =='posix' else 'clear')'''
+    
+    ####################################### END READY ##############################################
+    LED.screen = [[0 for x in range(32)] for x in range(16)] # 게임 시작 전 LED CLEAR!
+    who = 0                             # who: 누구차례인지 나타내는 변수, player_list의 index를 나타냄, 처음엔 index 0부터 시작
+    while True: # 게임 while문
+        if(len(player_list) == 1) break # 게임 종료 조건: 플레이어가 한명 남을 경우 
+        i = who 
+        player_list[i].output() 
+        check_cards()                   # 5개짜리 있다면, TAKE =1 갱신
+        # if(특정키 입력):
+        #     update_label_remaining()  # 특정키 입력시 남은 카드 수 LED 출력 
+        who = keyboard_input()          # 종친 플레이어의 index 반환
+        if(who == -1):                  # 아무도 종을 안친 경우
+            i = (i+1)/len(player_list)  # 다음 사람~
+            if(i>len(player_list)):     # 플레이어 한명이 게임에서 진경우 player_list의 길이가 작아짐 그 경우 고려함
+                i = i-1
+        else:
+            i = who                     # 누가 종친경우 그 사람의 index를 i로! 
 
 if __name__ == '__main__':
     main()
