@@ -6,6 +6,7 @@ import numpy as np
 import random
 import copy
 import os
+import sys
 
 num_1=[[0,1,0,0],
        [1,1,0,0],
@@ -353,43 +354,48 @@ class Player:
     time = None
     hand_cards = None 
     order = None
+    card = None 
+    live = None
 
-    def __init__ (self, player_id = "", time = 0, hand_cards = [], order=0):
+    def __init__ (self, player_id = "", react = 0, hand_cards = [], order=0):
         self.player_id = player_id
-        self.time = time
+        self.react = react
         self.hand_cards = hand_cards
         self.order = order
+        self.card = None
+        self.live = True
 
     def output(self):
-        global present_surface_card, present_sum,present_total_card, card
-        if len(p1.hand_cards) == 0:  
+        global present_surface_card, present_sum,present_total_card
+
+        if len(self.hand_cards) == 0:  
             lose()                  
         else:
-            if card is not None:
+            if self.card is not None:
                 present_surface_card[0] = []
-                present_sum[card.color-1] = present_sum[card.color-1] - card.count
-            card = self.hand_cards.pop()
-            present_surface_card[0] = [card1]
-            present_total_card = present_total_card+[card]
-            present_sum[card.color-1] = present_sum[card.color-1] + card.count
+                present_sum[self.card.color-1] = present_sum[self.card.color-1] - self.card.count
+            self.card = self.hand_cards.pop()
+            present_surface_card[0] = [self.card]
+            present_total_card = present_total_card+[self.card]
+            present_sum[self.card.color-1] = present_sum[self.card.color-1] + self.card.count
             print("[R G Y B]")
             print(present_sum)
             if(self.order == 1):
                 for i in range(8):
                     for j in range(16):
-                        LED.screen[i][j]=card.coord[i][j]
+                        LED.screen[i][j]=self.card.coord[i][j]
             elif(self.order == 2):
                 for i in range(8):
                     for j in range(16):
-                        LED.screen[i][j+16]=card.coord[i][j]
+                        LED.screen[i][j+16]=self.card.coord[i][j]
             elif(self.order == 3):
                 for i in range(8):
                     for j in range(16):
-                        LED.screen[i+8][j]=card.coord[i][j]
+                        LED.screen[i+8][j]=self.card.coord[i][j]
             elif(self.order == 4):
                 for i in range(8):
                     for j in range(16):
-                        LED.screen[i+8][j+16]=card.coord[i][j]
+                        LED.screen[i+8][j+16]=self.card.coord[i][j]
         
 oneCard = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -447,12 +453,12 @@ card1 = None
 card2 = None
 card3 = None
 card4 = None
-card = None
 p1 = []
 p2 = []
 p3 = []
 p4 = []
 player_list=[]
+who = None
 
 def LED_init():
     thread=threading.Thread(target=LED.main, args=())
@@ -506,34 +512,96 @@ def update_label_remaining(): # LED 출력으로 바뀌어야 함
     print("p3:",len(p3.hand_cards))
     print("p4:",len(p4.hand_cards))
 
-def lose():
+########################################################################################
+def gamesetlose():
     global p1,p2,p3,p4, player_list
 
-    if len(p1.hand_cards) == 0:
+    if len(p1.hand_cards) == 0 and p1.live == True:
         print("p1 lose")
         player_list.remove(p1)  
         for i in range(8):
             for j in range(16):
-                LED.screen[i][j] = 0 
-    if len(p2.hand_cards) == 0:
+
+                LED.screen[i][j] = 0
+        p1.live = False           
+        p1.card = None     
+ 
+    if len(p2.hand_cards) == 0 and p2.live == True:
         print("p2 lose")
         player_list.remove(p2)
         for i in range(8):
             for j in range(16):
                 LED.screen[i][j+16] = 0 
-    if len(p3.hand_cards) == 0:
+        p2.live = False       
+        p2.card = None         
+
+    if len(p3.hand_cards) == 0 and p3.live == True:
         print("p3 lose")
         player_list.remove(p3)
         for i in range(8):
             for j in range(16):
                 LED.screen[i+8][j] = 0 
-    if len(p4.hand_cards) == 0:
+        p3.live = False            
+        p3.card = None    
+ 
+
+    if len(p4.hand_cards) == 0 and p4.live == True:
         print("p4 lose")
         player_list.remove(p4)
         for i in range(8):
             for j in range(16):
                 LED.screen[i+8][j+16] = 0 
-    
+        p4.live = False    
+        p4.card = None                
+ 
+##################################################################
+
+
+
+def lose():
+    global p1,p2,p3,p4, player_list
+
+    if len(p1.hand_cards) == 0 and p1.live == True:
+        print("p1 lose")
+        player_list.remove(p1)  
+        for i in range(8):
+            for j in range(16):
+                LED.screen[i][j] = 0
+        p1.live = False           
+        present_sum[p1.card.color-1] = present_sum[p1.card.color-1] - p1.card.count
+        p1.card = None     
+ 
+    if len(p2.hand_cards) == 0 and p2.live == True:
+        print("p2 lose")
+        player_list.remove(p2)
+        for i in range(8):
+            for j in range(16):
+                LED.screen[i][j+16] = 0 
+        p2.live = False       
+        present_sum[p2.card.color-1] = present_sum[p2.card.color-1] - p2.card.count
+        p2.card = None         
+
+    if len(p3.hand_cards) == 0 and p3.live == True:
+        print("p3 lose")
+        player_list.remove(p3)
+        for i in range(8):
+            for j in range(16):
+                LED.screen[i+8][j] = 0 
+        p3.live = False            
+        present_sum[p3.card.color-1] = present_sum[p3.card.color-1] - p3.card.count
+        p3.card = None    
+ 
+
+    if len(p4.hand_cards) == 0 and p4.live == True:
+        print("p4 lose")
+        player_list.remove(p4)
+        for i in range(8):
+            for j in range(16):
+                LED.screen[i+8][j+16] = 0 
+        p4.live = False    
+        present_sum[p4.card.color-1] = present_sum[p4.card.color-1] - p4.card.count
+        p4.card = None                
+ 
 
 def consoleMatrix(screen):
     for i in screen:
@@ -557,8 +625,7 @@ def pygcurseMatrix(screen):
 def keyboard_input():
     global card1, card2, card3, card4
     global present_surface_card, present_sum, present_total_card, player_list
-    global TAKE, RING
-
+    global TAKE, RING, who
     event = input()
     if event == '1':
         if (TAKE == 1 and RING == 0):
@@ -566,11 +633,17 @@ def keyboard_input():
             present_total_card = []
             present_surface_card = [[], [], [], []]
             present_sum = np.asarray([0, 0, 0, 0])
-            card1, card2, card3, card4, RING, TAKE = None, None, None, None, 0, 0
+            TAKE = 0
+            if(len(p1.hand_cards) != 0): p1.card = None
+            if(len(p2.hand_cards) != 0): p2.card = None
+            if(len(p3.hand_cards) != 0): p3.card = None
+            if(len(p4.hand_cards) != 0): p4.card = None
+
             for i in range(16):
                 for j in range(32):
                     LED.screen[i][j]=0
             # clean_cards()
+            gamesetlose()
         elif TAKE == 0:
             if len(p1.hand_cards) > 3:
                 p2.hand_cards.insert(0, p1.hand_cards.pop())
@@ -579,17 +652,6 @@ def keyboard_input():
             else:
                 p1.hand_cards = []
                 lose()
-        '''card1 = p1.hand_cards.pop()
-        present_surface_card[0] = [card1]
-        present_total_card = present_total_card+[card1]
-        present_sum[card1.color-1] = present_sum[card1.color-1] + card1.count
-        print("[R G Y B]")
-        print(present_sum)
-        # print("card1's count",card1.count)
-        
-        for i in range(8):
-            for j in range(16):
-                LED.screen[i][j]=card1.coord[i][j]'''
         check_cards()
         update_label_remaining()
         who = player_list.index(p1)
@@ -599,11 +661,16 @@ def keyboard_input():
             present_total_card = []
             present_surface_card = [[], [], [], []]
             present_sum = np.asarray([0, 0, 0, 0])
-            card1, card2, card3, card4, RING, TAKE = None, None, None, None, 0, 0
+            TAKE = 0
+            if(len(p1.hand_cards) != 0): p1.card = None
+            if(len(p2.hand_cards) != 0): p2.card = None
+            if(len(p3.hand_cards) != 0): p3.card = None
+            if(len(p4.hand_cards) != 0): p4.card = None
             for i in range(16):
                 for j in range(32):
                     LED.screen[i][j]=0
             # clean_cards()
+            gamesetlose()
         elif TAKE == 0:
             if len(p2.hand_cards) > 3:
                 p1.hand_cards.insert(0, p2.hand_cards.pop())
@@ -631,10 +698,15 @@ def keyboard_input():
             present_total_card = []
             present_surface_card = [[], [], [], []]
             present_sum = np.asarray([0, 0, 0, 0])
-            card1, card2, card3, card4, RING, TAKE = None, None, None, None, 0, 0
+            TAKE = 0
+            if(len(p1.hand_cards) != 0): p1.card = None
+            if(len(p2.hand_cards) != 0): p2.card = None
+            if(len(p3.hand_cards) != 0): p3.card = None
+            if(len(p4.hand_cards) != 0): p4.card = None
             for i in range(16):
                 for j in range(32):
                     LED.screen[i][j]=0
+            gamesetlose()
             # clean_cards()
         elif TAKE == 0:
             if len(p3.hand_cards) > 3:
@@ -656,17 +728,23 @@ def keyboard_input():
         check_cards()
         update_label_remaining()
         who = player_list.index(p3)
+
     elif event == '4':
         if (TAKE == 1 and RING == 0):
             p4.hand_cards = present_total_card + p4.hand_cards
             present_total_card = []
             present_surface_card = [[], [], [], []]
             present_sum = np.asarray([0, 0, 0, 0])
-            card1, card2, card3, card4, RING, TAKE = None, None, None, None, 0, 0
+            TAKE = 0
+            if(len(p1.hand_cards) != 0): p1.card = None
+            if(len(p2.hand_cards) != 0): p2.card = None
+            if(len(p3.hand_cards) != 0): p3.card = None
+            if(len(p4.hand_cards) != 0): p4.card = None
             for i in range(16):
                 for j in range(32):
                     LED.screen[i][j]=0
             # clean_cards()
+            gamesetlose()
         elif TAKE == 0:
             if len(p4.hand_cards) > 3:
                 p1.hand_cards.insert(0, p4.hand_cards.pop())
@@ -686,8 +764,8 @@ def keyboard_input():
                 LED.screen[i+8][j+16]=card4.coord[i][j]'''
         check_cards()
         update_label_remaining()
-        wwho = player_list.index(p4)
-    else who = -1:
+        who = player_list.index(p4)
+    else: who = -1
     return who
     
 p1_ready=0
@@ -699,7 +777,7 @@ b=0
 def main():
     global card1, card2, card3, card4
     global present_surface_card, present_sum, present_total_card
-    global TAKE
+    global TAKE, who
     LED_init()
     initCard()
     initPlayer()
@@ -712,63 +790,12 @@ def main():
     global b
 
     ####################################### START READY ##############################################
-    while True:
-        if keyboard.is_pressed('s'):
-            write1([P,R,E,S,S,],2)
-            write2([T,O,SP,S,T,A,R,T],3)
-            b+=1
-            break
-            
-    while b!=0:
-        if keyboard.is_pressed('1'):
-            p1_ready+=1
-            for i in range(4):
-                for j in range(8):
-                    LED.screen[i+12][j]=1
-        if keyboard.is_pressed('2'):
-            p2_ready+=1
-            for i in range(4):
-                for j in range(8):
-                    LED.screen[i+12][j+8]=2
-
-        if keyboard.is_pressed('3'):
-            p3_ready+=1
-            for i in range(4):
-                for j in range(8):
-                    LED.screen[i+12][j+16]=3
-            
-        if keyboard.is_pressed('4'):
-            p4_ready+=1
-            for i in range(4):
-                for j in range(8):
-                    LED.screen[i+12][j+24]=4
-            
-            
-        if (p1_ready!=0 and p2_ready!=0) and (p3_ready!= 0 and p4_ready!= 0):
-            print("all player get ready")
-            time.sleep(2)
-            write1([A,L,L,P,L,A,Y,E,R],3)
-            write2([R,E,A,D,Y,ex],4)
-            time.sleep(2)
-            LED.screen = [[0 for x in range(32)] for x in range(16)]
-            write1([G,A,M,E],3)
-            write2([S,T,A,R,T,ex],4)
-            time.sleep(1.5)
-            LED.screen = [[0 for x in range(32)] for x in range(16)]
-            
-            for i in range(5,0,-1):
-                    write([SP,SP,num_i],3)
-                    time.sleep(1)
-                    LED.screen = [[0 for x in range(32)] for x in range(16)]
-                    
-            a=1
-            break
-    
     ####################################### END READY ##############################################
     LED.screen = [[0 for x in range(32)] for x in range(16)] # 게임 시작 전 LED CLEAR!
     who = 0                             # who: 누구차례인지 나타내는 변수, player_list의 index를 나타냄, 처음엔 index 0부터 시작
     while True: # 게임 while문
-        if(len(player_list) == 1) break # 게임 종료 조건: 플레이어가 한명 남을 경우 
+        if(len(player_list) == 1):  # 게임 종료 조건: 플레이어가 한명 남을 경우 
+            sys.exit()
         if(who != -1): i = who 
         player_list[i].output() 
         check_cards()                   # 5개짜리 있다면, TAKE =1 갱신
