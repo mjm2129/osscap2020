@@ -6,6 +6,7 @@
 
 ## 2. 사용법
 
+### 2.1 실행명렁어
   $ sudo python3 halligalli.py
  
 ## 3. 게임규칙
