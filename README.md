@@ -5,26 +5,26 @@
 
 ## 1. 프로그램 설치
 
-  $ git clone https://github.com/mjm2129/osscap2020.git
+    $ git clone https://github.com/mjm2129/osscap2020.git
   
   ### 1.1 pyserial 설치
   
-  $ sudo pip3 install pyserial
+    $ sudo pip3 install pyserial
   
   ### 1.2 arduino 설치
   
-  $ sudo apt-get update
+    $ sudo apt-get update
   
-  $ sudo apt-get upgrade
+    $ sudo apt-get upgrade
   
-  $ sudo apt-get install arduino
+    $ sudo apt-get install arduino
   
  
 ## 2. 사용법
 
 ### 2.1 실행 명령어
 
-  $ sudo python3 halligalli.py
+    $ sudo python3 halligalli.py
   
 ### 2.2 게임 모드
   본 게임은 1P / 4P 두가지 모드를 제공한다. 
